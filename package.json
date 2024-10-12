@@ -1,41 +1,94 @@
 {
-  "name": "sqlstringformatter",
-  "displayName": "SQLStringFormatter",
-  "description": "Format SQL sub string fragments and replace special symbols",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.94.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "sqlstringformatter.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.94.0",
-    "@types/mocha": "^10.0.8",
-    "@types/node": "20.x",
-    "@typescript-eslint/eslint-plugin": "^8.7.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
-  }
+    "name": "sqlstringpreparer",
+    "displayName": "SQL String Preparer",
+    "description": "Prepare SQL string. Add, remove and replace special characters. Format, quoting and unquoting SQL parameters, etc.",
+    "publisher": "aleksei-grigorev",
+    "author": {
+        "name": "Aleksei Grigorev",
+        "email": "info@aleksvgrig.com",
+        "url": "https://www.aleksvgrig.com/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/AlekseiGrigorev/SQLStringPreparer.git"
+    },
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "icon": "images/logo.png",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.87.0"
+    },
+    "categories": [
+        "Other",
+        "Formatters"
+    ],
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "sqlstringpreparer.stringify",
+                "title": "SQL String Prepаrer - Stringify"
+            },
+            {
+                "command": "sqlstringpreparer.addCommas",
+                "title": "SQL String Prepаrer - Add Commas"
+            },
+            {
+                "command": "sqlstringpreparer.removeCommas",
+                "title": "SQL String Prepаrer - Remove Commas"
+            },
+            {
+                "command": "sqlstringpreparer.addQuotes",
+                "title": "SQL String Prepаrer - Add Quotes"
+            },
+            {
+                "command": "sqlstringpreparer.addDoubleQuotes",
+                "title": "SQL String Prepаrer - Add Double Quotes"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "sqlstringpreparer.stringify",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.addCommas",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.removeCommas",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.addQuotes",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.addDoubleQuotes",
+                    "when": "editorHasSelection"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.87.0",
+        "@types/mocha": "^10.0.8",
+        "@types/node": "20.x",
+        "@typescript-eslint/eslint-plugin": "^8.7.0",
+        "@typescript-eslint/parser": "^8.7.0",
+        "eslint": "^9.11.1",
+        "typescript": "^5.6.2",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.4.1"
+    }
 }
