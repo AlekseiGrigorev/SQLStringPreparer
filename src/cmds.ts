@@ -6,7 +6,7 @@ export class Cmds {
     private _eol: string = '\n';
     private _document: vscode.TextDocument | null = null;
     private _selection: vscode.Selection | null = null;
-    
+
     private static getEol(): string {
         if (!vscode.window.activeTextEditor) {
             return '\n';
@@ -14,7 +14,7 @@ export class Cmds {
         const document = vscode.window.activeTextEditor.document;
         let eol = '\n';
         if (document.eol === vscode.EndOfLine.CRLF) {
-            eol = '\r\n'; 
+            eol = '\r\n';
         }
         return eol;
     }
@@ -78,49 +78,85 @@ export class Cmds {
             builder.replace(selectionRange, text);
         });
     }
-    
-    public static cmdStringify() {
+
+    private static getPreparer(): Preparer | null {
         const text = this.getText();
         if (text == '') {
+            return null;
+        }
+        return new Preparer(text, this.getEol());
+    }
+
+
+    public static cmdStringify() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
             return;
         }
-        const preparer = new Preparer(text, this.getEol());
         this.editText(preparer.stringify());
     }
 
-    public static cmdAddCommas() {
-        const text = this.getText();
-        if (text == '') {
+    public static cmdSplit() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
             return;
         }
-        const preparer = new Preparer(text, this.getEol());
+        this.editText(preparer.split());
+    }
+
+    public static cmdTrim() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
+            return;
+        }
+        this.editText(preparer.trim());
+    }
+
+    public static cmdAddCommas() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
+            return;
+        }
         this.editText(preparer.addCommas());
     }
 
     public static cmdRemoveCommas() {
-        const text = this.getText();
-        if (text == '') {
+        const preparer = this.getPreparer();
+        if (!preparer) {
             return;
         }
-        const preparer = new Preparer(text, this.getEol());
         this.editText(preparer.removeCommas());
     }
 
     public static cmdAddQuotes() {
-        const text = this.getText();
-        if (text == '') {
+        const preparer = this.getPreparer();
+        if (!preparer) {
             return;
         }
-        const preparer = new Preparer(text, this.getEol());
         this.editText(preparer.addQuotes());
     }
 
-    public static cmdAddDoubleQuotes() {
-        const text = this.getText();
-        if (text == '') {
+    public static cmdRemoveQuotes() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
             return;
         }
-        const preparer = new Preparer(text, this.getEol());
+        this.editText(preparer.removeQuotes());
+    }
+
+    public static cmdAddDoubleQuotes() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
+            return;
+        }
         this.editText(preparer.addDoubleQuotes());
+    }
+
+    public static cmdRemoveDoubleQuotes() {
+        const preparer = this.getPreparer();
+        if (!preparer) {
+            return;
+        }
+        this.editText(preparer.removeDoubleQuotes());
     }
 } 

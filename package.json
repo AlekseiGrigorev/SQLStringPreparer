@@ -14,7 +14,7 @@
     },
     "license": "SEE LICENSE IN LICENSE.txt",
     "icon": "images/logo.png",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "engines": {
         "vscode": "^1.87.0"
     },
@@ -31,6 +31,14 @@
                 "title": "SQL String Prepаrer - Stringify"
             },
             {
+                "command": "sqlstringpreparer.split",
+                "title": "SQL String Prepаrer - Split"
+            },
+            {
+                "command": "sqlstringpreparer.trim",
+                "title": "SQL String Prepаrer - Trim"
+            },
+            {
                 "command": "sqlstringpreparer.addCommas",
                 "title": "SQL String Prepаrer - Add Commas"
             },
@@ -43,14 +51,30 @@
                 "title": "SQL String Prepаrer - Add Quotes"
             },
             {
+                "command": "sqlstringpreparer.removeQuotes",
+                "title": "SQL String Prepаrer - Remove Quotes"
+            },
+            {
                 "command": "sqlstringpreparer.addDoubleQuotes",
                 "title": "SQL String Prepаrer - Add Double Quotes"
+            },
+            {
+                "command": "sqlstringpreparer.removeDoubleQuotes",
+                "title": "SQL String Prepаrer - Remove Double Quotes"
             }
         ],
         "menus": {
             "commandPalette": [
                 {
                     "command": "sqlstringpreparer.stringify",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.split",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.trim",
                     "when": "editorHasSelection"
                 },
                 {
@@ -66,7 +90,15 @@
                     "when": "editorHasSelection"
                 },
                 {
+                    "command": "sqlstringpreparer.removeQuotes",
+                    "when": "editorHasSelection"
+                },
+                {
                     "command": "sqlstringpreparer.addDoubleQuotes",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "sqlstringpreparer.removeDoubleQuotes",
                     "when": "editorHasSelection"
                 }
             ]

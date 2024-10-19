@@ -18,6 +18,12 @@ export function activate(context: vscode.ExtensionContext) {
     const cmdStringify = vscode.commands.registerCommand('sqlstringpreparer.stringify', () => {
         Cmds.cmdStringify();
 	});
+    const cmdSplit = vscode.commands.registerCommand('sqlstringpreparer.split', () => {
+        Cmds.cmdSplit();
+	});
+    const cmdTrim = vscode.commands.registerCommand('sqlstringpreparer.trim', () => {
+        Cmds.cmdTrim();
+	});
     const cmdAddCommas = vscode.commands.registerCommand('sqlstringpreparer.addCommas', () => {
         Cmds.cmdAddCommas();
 	});
@@ -27,14 +33,24 @@ export function activate(context: vscode.ExtensionContext) {
     const cmdAddQuotes = vscode.commands.registerCommand('sqlstringpreparer.addQuotes', () => {
         Cmds.cmdAddQuotes();
 	});
+    const cmdRemoveQuotes = vscode.commands.registerCommand('sqlstringpreparer.removeQuotes', () => {
+        Cmds.cmdRemoveQuotes();
+	});
     const cmdAddDoubleQuotes = vscode.commands.registerCommand('sqlstringpreparer.addDoubleQuotes', () => {
         Cmds.cmdAddDoubleQuotes();
 	});
+    const cmdRemoveDoubleQuotes = vscode.commands.registerCommand('sqlstringpreparer.removeDoubleQuotes', () => {
+        Cmds.cmdRemoveDoubleQuotes();
+	});
     context.subscriptions.push(cmdStringify);
+    context.subscriptions.push(cmdSplit);
+    context.subscriptions.push(cmdTrim);
     context.subscriptions.push(cmdAddCommas);
     context.subscriptions.push(cmdRemoveCommas);
     context.subscriptions.push(cmdAddQuotes);
+    context.subscriptions.push(cmdRemoveQuotes);
     context.subscriptions.push(cmdAddDoubleQuotes);
+    context.subscriptions.push(cmdRemoveQuotes);
 }
 
 // This method is called when your extension is deactivated
