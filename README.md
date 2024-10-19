@@ -16,6 +16,6 @@ Commands are displayed (View > Command Palette... or Ctrl+Shift+P) and work with
 - SQL String Prepаrer - Remove Double Quotes - Removes double quotes at the beginning and the end of lines
 
 ## Change Log
-1.0.0 - Add some commands
+1.0.0 - Added some commands
 
 0.0.1 - Initial
