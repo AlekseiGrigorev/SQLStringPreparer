@@ -5,7 +5,7 @@ Prepare SQL string (In particular, the parameters of the IN expression). Add, re
 
 Commands are displayed (View > Command Palette... or Ctrl+Shift+P) and work with the selected text in any file formats.
 
-- SQL String Prepаrer - Stringify - Removes carriage returns
+- SQL String Prepаrer - Stringify - Removes carriage returns. By default, trim each line, adds comma delimiter and copy result to clipboard (see extension settings)
 - SQL String Prepаrer - Split - Split lines by commas
 - SQL String Prepаrer - Trim - Removes whitespace from both sides of lines
 - SQL String Prepаrer - Add Commas - Adds commas at the end of lines
@@ -16,6 +16,8 @@ Commands are displayed (View > Command Palette... or Ctrl+Shift+P) and work with
 - SQL String Prepаrer - Remove Double Quotes - Removes double quotes at the beginning and the end of lines
 
 ## Change Log
+1.1.0 - Added extension settings
+
 1.0.0 - Added some commands
 
 0.0.1 - Initial

@@ -51,9 +51,21 @@ export class Preparer {
         return newChars.join('');
     }
 
-    public stringify(): string {
-        const text = this.trim();
-        return text.replaceAll(this._eol, '');
+    public stringify(delimiter: string): string {
+        let lines = this._text.split(this._eol);
+        let newLines: string[] = [];
+        lines.forEach(function(line, index, arr) {
+            let trimLine = line.trim();
+            if (delimiter !== '') {
+                if (trimLine.substring(trimLine.length-delimiter.length) === delimiter) {
+                    trimLine = trimLine.slice(0, -delimiter.length);
+                }
+            }
+            if ('' !== trimLine) {
+                newLines.push(trimLine);
+            }
+        });
+        return newLines.join(delimiter);
     }
 
     public split(): string {

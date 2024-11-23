@@ -2,11 +2,10 @@ import * as vscode from 'vscode';
 import { Preparer } from './preparer';
 
 export class Cmds {
-
-    private _eol: string = '\n';
-    private _document: vscode.TextDocument | null = null;
-    private _selection: vscode.Selection | null = null;
-
+    /**
+     * Returns end of line symbol
+     * @returns 
+     */
     private static getEol(): string {
         if (!vscode.window.activeTextEditor) {
             return '\n';
@@ -19,6 +18,10 @@ export class Cmds {
         return eol;
     }
 
+    /**
+     * Returns text document or null
+     * @returns 
+     */
     private static getDocument(): vscode.TextDocument | null {
         if (!vscode.window.activeTextEditor) {
             return null;
@@ -26,6 +29,10 @@ export class Cmds {
         return vscode.window.activeTextEditor.document;
     }
 
+    /**
+     * Returns current selection or null
+     * @returns 
+     */
     private static getSelection(): vscode.Selection | null {
         if (!vscode.window.activeTextEditor) {
             return null;
@@ -37,6 +44,10 @@ export class Cmds {
         return selection;
     }
 
+    /**
+     * Returns current selection range or null
+     * @returns 
+     */
     private static getSelectionRange(): vscode.Range | null {
         const document = this.getDocument();
         if (!document) {
@@ -54,6 +65,40 @@ export class Cmds {
         );
     }
 
+    /**
+     * Returns text line range
+     * @param line 
+     * @returns 
+     */
+    private static getLineRange(line: number): vscode.Range | null
+    {
+        const document = this.getDocument();
+        if (!document) {
+            return null;
+        }
+        return new vscode.Range(
+            line, 0, line, document.lineAt(line).text.length
+        );
+    }
+
+    /**
+     * Set text selection
+     * @param vscode.Range
+     * @returns 
+     */
+    private static setSelection(range: vscode.Range): void {
+        if (!vscode.window.activeTextEditor) {
+            return;
+        }
+        vscode.window.activeTextEditor.selection = new vscode.Selection(
+            range.start.line, range.start.character, range.end.line, range.end.character
+        );
+    }
+
+    /**
+     * Returns selected text
+     * @returns 
+     */
     private static getText(): string {
         const document = this.getDocument();
         if (!document) {
@@ -66,6 +111,11 @@ export class Cmds {
         return document.getText(range);
     }
 
+    /**
+     * Replace selected text
+     * @param text 
+     * @returns 
+     */
     private static editText(text: string): void {
         if (!vscode.window.activeTextEditor) {
             return;
@@ -74,11 +124,23 @@ export class Cmds {
         if (!selectionRange) {
             return;
         }
+        
         vscode.window.activeTextEditor.edit(builder => {
             builder.replace(selectionRange, text);
+        }).then(success => {
+            if (vscode.window.activeTextEditor) {
+                vscode.window.activeTextEditor.selection = new vscode.Selection(
+                    vscode.window.activeTextEditor.selection.start,
+                    vscode.window.activeTextEditor.selection.start,
+                );
+            }
         });
     }
 
+    /**
+     * Returns preparer object or null
+     * @returns 
+     */
     private static getPreparer(): Preparer | null {
         const text = this.getText();
         if (text == '') {
@@ -87,15 +149,30 @@ export class Cmds {
         return new Preparer(text, this.getEol());
     }
 
-
-    public static cmdStringify() {
+    /**
+     * Stringify command
+     * @returns 
+     */
+    public static cmdStringify(delimiter: string, copyToClipboard: boolean) {
         const preparer = this.getPreparer();
         if (!preparer) {
             return;
         }
-        this.editText(preparer.stringify());
+        const text = preparer.stringify(delimiter);
+        this.editText(text);
+        const selectedRange = this.getSelectionRange();
+        if (selectedRange) {
+            vscode.window.activeTextEditor?.revealRange(selectedRange, vscode.TextEditorRevealType.InCenter);
+        }
+        if (copyToClipboard) {
+            vscode.env.clipboard.writeText(text);
+        }
     }
 
+    /**
+     * Split command
+     * @returns 
+     */
     public static cmdSplit() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -104,6 +181,10 @@ export class Cmds {
         this.editText(preparer.split());
     }
 
+    /**
+     * Trim command
+     * @returns 
+     */
     public static cmdTrim() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -112,6 +193,10 @@ export class Cmds {
         this.editText(preparer.trim());
     }
 
+    /**
+     * Add Commas command
+     * @returns 
+     */
     public static cmdAddCommas() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -120,6 +205,10 @@ export class Cmds {
         this.editText(preparer.addCommas());
     }
 
+    /**
+     * Remove Commas command
+     * @returns 
+     */
     public static cmdRemoveCommas() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -128,6 +217,10 @@ export class Cmds {
         this.editText(preparer.removeCommas());
     }
 
+    /**
+     * Add Quotes command
+     * @returns 
+     */
     public static cmdAddQuotes() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -136,6 +229,10 @@ export class Cmds {
         this.editText(preparer.addQuotes());
     }
 
+    /**
+     * Remove Quotes command
+     * @returns 
+     */
     public static cmdRemoveQuotes() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -144,6 +241,10 @@ export class Cmds {
         this.editText(preparer.removeQuotes());
     }
 
+    /**
+     * Add Double Quotes command
+     * @returns 
+     */
     public static cmdAddDoubleQuotes() {
         const preparer = this.getPreparer();
         if (!preparer) {
@@ -152,6 +253,10 @@ export class Cmds {
         this.editText(preparer.addDoubleQuotes());
     }
 
+    /**
+     * Remove Double Quotes command
+     * @returns 
+     */
     public static cmdRemoveDoubleQuotes() {
         const preparer = this.getPreparer();
         if (!preparer) {
