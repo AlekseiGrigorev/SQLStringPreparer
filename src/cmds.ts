@@ -116,24 +116,16 @@ export class Cmds {
      * @param text 
      * @returns 
      */
-    private static editText(text: string): void {
+    private static async editText(text: string): Promise<boolean> {
         if (!vscode.window.activeTextEditor) {
-            return;
+            return false;
         }
         const selectionRange = this.getSelectionRange();
         if (!selectionRange) {
-            return;
+            return false;
         }
-        
-        vscode.window.activeTextEditor.edit(builder => {
+        return await vscode.window.activeTextEditor.edit(builder => {
             builder.replace(selectionRange, text);
-        }).then(success => {
-            if (vscode.window.activeTextEditor) {
-                vscode.window.activeTextEditor.selection = new vscode.Selection(
-                    vscode.window.activeTextEditor.selection.start,
-                    vscode.window.activeTextEditor.selection.start,
-                );
-            }
         });
     }
 
@@ -153,16 +145,21 @@ export class Cmds {
      * Stringify command
      * @returns 
      */
-    public static cmdStringify(delimiter: string, copyToClipboard: boolean) {
+    public static async cmdStringify(delimiter: string, copyToClipboard: boolean) {
         const preparer = this.getPreparer();
         if (!preparer) {
             return;
         }
         const text = preparer.stringify(delimiter);
-        this.editText(text);
+        await this.editText(text);
         const selectedRange = this.getSelectionRange();
         if (selectedRange) {
             vscode.window.activeTextEditor?.revealRange(selectedRange, vscode.TextEditorRevealType.InCenter);
+            //Select whole new stringify line
+            const newSelectedRange = this.getLineRange(selectedRange.start.line);
+            if (newSelectedRange) {
+                this.setSelection(newSelectedRange);
+            }
         }
         if (copyToClipboard) {
             vscode.env.clipboard.writeText(text);
