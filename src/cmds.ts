@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { TextRange } from './textrange';
 import { Preparer } from './preparer';
 
 export class Cmds {
@@ -45,24 +46,24 @@ export class Cmds {
     }
 
     /**
-     * Returns current selection range or null
+     * Returns current selections ranges array or empty array
      * @returns 
      */
-    private static getSelectionRange(): vscode.Range | null {
-        const document = this.getDocument();
-        if (!document) {
-            return null;
+    private static getSelectionsTextRanges(): TextRange[] {
+        if (!vscode.window.activeTextEditor) {
+            return [];
         }
-        const selection = this.getSelection();
-        if (!selection) {
-            return null;
+        const ranges: TextRange[] = [];
+        for (const selection of vscode.window.activeTextEditor.selections) {
+            const range = new vscode.Range(
+                selection.start,
+                selection.end
+            );
+            ranges.push(
+                new TextRange(this.getText(range), range)
+            );
         }
-        return new vscode.Range(
-            selection.start.line,
-            0,
-            selection.end.line,
-            document.lineAt(selection.end.line).text.length
-        );
+        return ranges;
     }
 
     /**
@@ -70,8 +71,7 @@ export class Cmds {
      * @param line 
      * @returns 
      */
-    private static getLineRange(line: number): vscode.Range | null
-    {
+    private static getLineRange(line: number): vscode.Range | null {
         const document = this.getDocument();
         if (!document) {
             return null;
@@ -99,13 +99,9 @@ export class Cmds {
      * Returns selected text
      * @returns 
      */
-    private static getText(): string {
+    private static getText(range: vscode.Range): string {
         const document = this.getDocument();
         if (!document) {
-            return '';
-        }
-        const range = this.getSelectionRange();
-        if (!range) {
             return '';
         }
         return document.getText(range);
@@ -116,16 +112,12 @@ export class Cmds {
      * @param text 
      * @returns 
      */
-    private static async editText(text: string): Promise<boolean> {
+    private static async editText(text: string, range: vscode.Range): Promise<boolean> {
         if (!vscode.window.activeTextEditor) {
             return false;
         }
-        const selectionRange = this.getSelectionRange();
-        if (!selectionRange) {
-            return false;
-        }
         return await vscode.window.activeTextEditor.edit(builder => {
-            builder.replace(selectionRange, text);
+            builder.replace(range, text);
         });
     }
 
@@ -133,8 +125,7 @@ export class Cmds {
      * Returns preparer object or null
      * @returns 
      */
-    private static getPreparer(): Preparer | null {
-        const text = this.getText();
+    private static getPreparer(text: string): Preparer | null {
         if (text == '') {
             return null;
         }
@@ -146,23 +137,30 @@ export class Cmds {
      * @returns 
      */
     public static async cmdStringify(delimiter: string, copyToClipboard: boolean) {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        const text = preparer.stringify(delimiter);
-        await this.editText(text);
-        const selectedRange = this.getSelectionRange();
-        if (selectedRange) {
-            vscode.window.activeTextEditor?.revealRange(selectedRange, vscode.TextEditorRevealType.InCenter);
+        let newRanges: TextRange[] = [];
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            const text = preparer.stringify(delimiter);
+            newRanges.push(new TextRange(text, textRange.getRange()));
+            await this.editText(text, textRange.getRange());
+        }
+        if (0 < newRanges.length) {
             //Select whole new stringify line
-            const newSelectedRange = this.getLineRange(selectedRange.start.line);
+            const newSelectedRange = this.getLineRange(newRanges[0].getRange().start.line);
             if (newSelectedRange) {
                 this.setSelection(newSelectedRange);
+                vscode.window.activeTextEditor?.revealRange(newSelectedRange, vscode.TextEditorRevealType.InCenter);
             }
-        }
-        if (copyToClipboard) {
-            vscode.env.clipboard.writeText(text);
+            if (copyToClipboard) {
+                vscode.env.clipboard.writeText(newRanges[0].getText());
+            }
         }
     }
 
@@ -170,95 +168,143 @@ export class Cmds {
      * Split command
      * @returns 
      */
-    public static cmdSplit() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdSplit(removeCommas: boolean) {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.split());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.split(removeCommas), textRange.getRange());
+        }
     }
 
     /**
      * Trim command
      * @returns 
      */
-    public static cmdTrim() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdTrim() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.trim());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.trim(), textRange.getRange());
+        }
     }
 
     /**
      * Add Commas command
      * @returns 
      */
-    public static cmdAddCommas() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdAddCommas() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.addCommas());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.addCommas(), textRange.getRange());
+        }
     }
 
     /**
      * Remove Commas command
      * @returns 
      */
-    public static cmdRemoveCommas() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdRemoveCommas() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.removeCommas());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.removeCommas(), textRange.getRange());
+        }
     }
 
     /**
      * Add Quotes command
      * @returns 
      */
-    public static cmdAddQuotes() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdAddQuotes() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.addQuotes());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.addQuotes(), textRange.getRange());
+        }
     }
 
     /**
      * Remove Quotes command
      * @returns 
      */
-    public static cmdRemoveQuotes() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdRemoveQuotes() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.removeQuotes());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.removeQuotes(), textRange.getRange());
+        }
     }
 
     /**
      * Add Double Quotes command
      * @returns 
      */
-    public static cmdAddDoubleQuotes() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdAddDoubleQuotes() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.addDoubleQuotes());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.addDoubleQuotes(), textRange.getRange());
+        }
     }
 
     /**
      * Remove Double Quotes command
      * @returns 
      */
-    public static cmdRemoveDoubleQuotes() {
-        const preparer = this.getPreparer();
-        if (!preparer) {
+    public static async cmdRemoveDoubleQuotes() {
+        const selectionsTextRanges = this.getSelectionsTextRanges();
+        if (0 === selectionsTextRanges.length) {
             return;
         }
-        this.editText(preparer.removeDoubleQuotes());
+        for (const textRange of selectionsTextRanges) {
+            const preparer = this.getPreparer(textRange.getText());
+            if (!preparer) {
+                continue;
+            }
+            await this.editText(preparer.removeDoubleQuotes(), textRange.getRange());
+        }
     }
 } 

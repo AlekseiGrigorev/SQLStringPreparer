@@ -15,7 +15,7 @@
     "bugs": "https://github.com/AlekseiGrigorev/SQLStringPreparer/issues",
     "license": "SEE LICENSE IN LICENSE.txt",
     "icon": "images/logo.png",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "engines": {
         "vscode": "^1.87.0"
     },
@@ -39,6 +39,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Copy to clipboard Stringify result"
+                },
+                "sqlStringPreparer.removeCommasOnSplit": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Remove commas on Split command"
                 }
             }
         },

@@ -1,3 +1,5 @@
+import { StringHelper } from "./stringhelper";
+
 export class Preparer {
     private _text: string = '';
     private _eol: string = '\n';
@@ -7,54 +9,15 @@ export class Preparer {
         this._eol = eol;
     }
 
-    private addSymbolsToLine(line: string, symbol: string): string {
-        let newChars: string[] = [];
-        let start = true;
-        const chars = line.split('');
-        chars.forEach(function(char, index, arr) {
-            if (start && char !== ' ' && char !== '\t') {
-                start = false;
-                newChars.push(symbol);
-            }
-            if (index === chars.length - 1 && char === ',') {
-                newChars.push(symbol);
-            }
-            newChars.push(char);
-            if (index === chars.length - 1 && char !== ',') {
-                newChars.push(symbol);
-            }
-        });
-        return newChars.join('');
-    }
-
-    private removeSymbolsFromLine(line: string, symbol: string): string {
-        let newChars: string[] = [];
-        let start = true;
-        const chars = line.split('');
-        chars.forEach(function(char, index, arr) {
-            if (start && char !== ' ' && char !== '\t') {
-                start = false;
-                if (char === symbol) {
-                    return;
-                }
-            }
-            if (index === chars.length - 2 && char === symbol) {
-                if (chars[chars.length - 1] === ',') {
-                    return;
-                } 
-            }
-            if (index === chars.length - 1 && char === symbol) {
-                return; 
-            }
-            newChars.push(char);
-        });
-        return newChars.join('');
-    }
-
+    /**
+     * Stringify with delimiter
+     * @param delimiter 
+     * @returns 
+     */
     public stringify(delimiter: string): string {
         let lines = this._text.split(this._eol);
         let newLines: string[] = [];
-        lines.forEach(function(line, index, arr) {
+        lines.forEach((line, index, arr) => {
             let trimLine = line.trim();
             if (delimiter !== '') {
                 if (trimLine.substring(trimLine.length-delimiter.length) === delimiter) {
@@ -68,70 +31,103 @@ export class Preparer {
         return newLines.join(delimiter);
     }
 
-    public split(): string {
+    /**
+     * Split by commas
+     * @param removeCommas 
+     * @returns 
+     */
+    public split(removeCommas: boolean): string {
         let lines = this._text.split(this._eol);
         let newLines: string[] = [];
-        lines.forEach(function(line, index, arr) {
+        lines.forEach((line, index, arr) => {
             newLines.push(...line.split(',')); 
         });
-        newLines.forEach(function(line, index, arr) {
+        newLines.forEach((line, index, arr) => {
             if (index === newLines.length - 1) {
                 arr[index] = line;
             } else {
-                arr[index] = line + ',';
+                if (!removeCommas) {
+                    arr[index] = line + ',';
+                }
             } 
         });
         return newLines.join(this._eol);
     }
 
+    /**
+     * Trim each line
+     * @returns 
+     */
     public trim(): string {
         let lines = this._text.split(this._eol);
-        lines.forEach(function(line, index, arr) {
+        lines.forEach((line, index, arr) => {
             arr[index] = line.trim();
         });
         return lines.join(this._eol);
     }
 
+    /**
+     * Add commas to each line
+     * @returns 
+     */
     public addCommas(): string {
-        return this._text.replaceAll(this._eol, ',' + this._eol);
+        let lines = StringHelper.addSymbolToLines(this._text.split(this._eol), ',');
+        return lines.join(this._eol);
     }
 
+    /**
+     * Remove commas from each line
+     * @returns 
+     */
     public removeCommas(): string {
-        return this._text.replaceAll(',' + this._eol, this._eol);
+        let lines = StringHelper.removeSymbolFromLines(this._text.split(this._eol), ',');
+        return lines.join(this._eol);
     }
 
+    /**
+     * Add quotes to each line
+     * @returns 
+     */
     public addQuotes(): string {
-        const outerThis = this;
         let lines = this._text.split(this._eol);
-        lines.forEach(function(line, index, arr) {
-            arr[index] = outerThis.addSymbolsToLine(line, "'");
+        lines.forEach((line, index, arr) => {
+            arr[index] = StringHelper.addSymbolsToLine(line, "'");
         });
         return lines.join(this._eol);
     }
 
+    /**
+     * Remove quotes from each line
+     * @returns 
+     */
     public removeQuotes(): string {
-        const outerThis = this;
         let lines = this._text.split(this._eol);
-        lines.forEach(function(line, index, arr) {
-            arr[index] = outerThis.removeSymbolsFromLine(line, "'");
+        lines.forEach((line, index, arr)  => {
+            arr[index] = StringHelper.removeSymbolsFromLine(line, "'");
         });
         return lines.join(this._eol);
     }
 
+    /**
+     * Add double quotes to each line
+     * @returns 
+     */
     public addDoubleQuotes(): string {
-        const outerThis = this;
         let lines = this._text.split(this._eol);
-        lines.forEach(function(line, index, arr) {
-            arr[index] = outerThis.addSymbolsToLine(line, '"');
+        lines.forEach((line, index, arr)  => {
+            arr[index] = StringHelper.addSymbolsToLine(line, '"');
         });
         return lines.join(this._eol);
     }
 
+    /**
+     * Remove double quotes from each line
+     * @returns 
+     */
     public removeDoubleQuotes(): string {
-        const outerThis = this;
         let lines = this._text.split(this._eol);
-        lines.forEach(function(line, index, arr) {
-            arr[index] = outerThis.removeSymbolsFromLine(line, '"');
+        lines.forEach((line, index, arr) => {
+            arr[index] = StringHelper.removeSymbolsFromLine(line, '"');
         });
         return lines.join(this._eol);
     }
